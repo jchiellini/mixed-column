@@ -31,7 +31,7 @@ d3.charts.viz = function () {
 
     var
       data = chartData.data,
-      x = d3.scale.ordinal().rangeRoundBands([0, my.w()], .6, .4),
+      x = d3.scale.ordinal().rangeRoundBands([0, my.w()], .85, .4),
       y = d3.scale.linear().range([0, my.h()]),
       z = d3.scale.ordinal().range(my.colors()),
       keys = _.chain(data[0]).keys().uniq().without('name').value(),
@@ -49,9 +49,7 @@ d3.charts.viz = function () {
     y.domain([0, d3.max(series[series.length - 1], function(d) { return d.y0 + d.y; })]);
 
     xAxis.scale(x)
-        // .tickSize(-my.h())
         .tickPadding(3)
-        // .tickFormat(format)
         .outerTickSize([0])
         .orient('bottom');
 
@@ -102,13 +100,12 @@ d3.charts.viz = function () {
     var dataLabel = column.selectAll('.dataLabel')
       .data(Object)
       .enter().append("svg:text")
-      .attr("x", function(d) { return x(d.x) + (my.columnWidth()/2); })
+      .attr("x", function(d) { return x(d.x) + (x.rangeBand()/2); })
       .attr("y", function(d) { return y(d.y0) + y(d.y)/2; })
       .attr("text-anchor", "middle")
       .attr("dy", ".71em")
       .style("stroke", function() { return "#fff"; })
       .text(function(d){ return d.y+'%';});
-
 
     // rule.append("svg:text")
     //   .attr("x", 0)
@@ -118,17 +115,15 @@ d3.charts.viz = function () {
     //   .text(function(d){ return d+'%' });
 
     var getPathPosition = function(series){
-
-
        var l = series[0],
            r = series[1];
 
        return [
-         { "x": x(l.x) + my.columnWidth(),   "y": y(l.y0) },
-         { "x": x(l.x) + my.columnWidth(),  "y": -y(l.y0) },
-         { "x": x(r.x) + my.columnWidth(),  "y": -y(r.y0) },
-         { "x": x(r.x) + my.columnWidth(),  "y": -y(r.y0) - y(r.y)},
-         { "x": x(l.x) + my.columnWidth(),   "y": -y(l.y0) - y(l.y) }
+         { "x": x(l.x) + x.rangeBand(),   "y": y(l.y0) },
+         { "x": x(l.x) + x.rangeBand(),  "y": y(l.y0) + y(l.y) },
+         { "x": x(r.x),  "y": y(r.y0) + y(r.y) },
+         { "x": x(r.x),  "y": y(r.y0)  },
+         { "x": x(l.x) + x.rangeBand(),   "y": y(l.y0) }
        ];
     };
 
