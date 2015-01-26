@@ -75,9 +75,8 @@ d3.charts.viz = function () {
       .enter().append("svg:g")
       .attr("class", "column")
       .style("fill", function(d, i) { return z(i); });
-//      .style("stroke", function(d, i) { return d3.rgb(z(i)).darker(); });
 
-    // Add a rect for each date.
+    // Add a rect for each series.
     var rect = column.selectAll("rect")
       .data(Object)
       .enter().append("svg:rect")
@@ -140,23 +139,28 @@ d3.charts.viz = function () {
        .style("fill-opacity", 0.5)
        .attr("d", function(d){ return lineFunction(getPathPosition(d)); });
 
-    // var calculateDelta = function(series){
-    //   console.log(series)
-    //   var l = series[0],
-    //     r = series[1];
-    //   return r.y - l.y;
-    // };
+    var calculateDelta = function(series){
+       var l = series[0],
+         r = series[1];
+       return r.y - l.y;
+    };
 
-    // //Add paths
-    // var deltaLabels = chart.selectAll('.deltaLabels')
-    //   .data(series)
-    //   .enter().append("svg:text")
-    //   .attr("x", function(d) { return x(d.x) + 50 + (my.columnWidth()/2); })
-    //   .attr("y", function(d) { return -y(d.y0) - y(d.y) + (y(d.y)/2) - 4; })
-    //   .attr("text-anchor", "middle")
-    //   .attr("dy", ".71em")
-    //   .style("stroke", function() { return "#fff"; })
-    //   .text(function(d){ return calculateDelta(d);});
+    var getDeltaPosition = function(series){
+      var l = series[0],
+        r = series[1];
+      return (y(r.y) - y(l.y))/2;
+    };
+
+    //Add paths
+    var deltaLabels = chart.selectAll('.deltaLabels')
+       .data(series)
+       .enter().append("svg:text")
+       .attr("x", function(d) { return my.w()/2; })
+       .attr("y", function(d) { return getDeltaPosition(d); })
+       .attr("text-anchor", "middle")
+       .attr("dy", ".71em")
+       .style("stroke", function() { return "#fff"; })
+       .text(function(d){ return calculateDelta(d);});
   };
   return my;
 };
