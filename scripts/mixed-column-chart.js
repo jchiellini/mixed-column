@@ -91,7 +91,7 @@ d3.charts.viz = function () {
        .data(Object)
        .enter().append("svg:text")
        .attr("x", function(d) { return x(d.x) + (my.columnWidth()/2); })
-       .attr("y", function(d) { return y(d.y0) + y(d.y)/2; })
+       .attr("y", function(d) { return y(d.y0) - 4 + y(d.y)/2; })
        .attr("text-anchor", "middle")
        .attr("dy", ".71em")
        .style("stroke", function() { return "#fff"; })
@@ -111,10 +111,10 @@ d3.charts.viz = function () {
 
        return [
          { "x": x(l.x) + my.columnWidth(),   "y": y(l.y0) },
-         { "x": x(l.x) + my.columnWidth(),  "y": -y(l.y0) },
-         { "x": x(r.x) + my.columnWidth(),  "y": -y(r.y0) },
-         { "x": x(r.x) + my.columnWidth(),  "y": -y(r.y0) - y(r.y)},
-         { "x": x(l.x) + my.columnWidth(),   "y": -y(l.y0) - y(l.y) }
+         { "x": x(l.x) + my.columnWidth(),  "y": y(l.y0) + y(l.y) },
+         { "x": x(r.x),  "y": y(r.y0) + y(r.y) },
+         { "x": x(r.x),  "y": y(r.y0)  },
+         { "x": x(l.x) + my.columnWidth(),   "y": y(l.y0) }
        ];
     };
 
