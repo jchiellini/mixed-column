@@ -35,9 +35,7 @@
             "1-tier disti":10,
             "2-tier disti/var":15
           }
-        ],
-        categories:['Current Market (2014)','Future Market (2019)']
-
+        ]
       }
     };
 
