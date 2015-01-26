@@ -32,10 +32,12 @@ d3.charts.viz = function () {
     var
       data = chartData.data,
       x = d3.scale.ordinal().rangeRoundBands([0, my.w()], .85, .4),
+      yGrid = d3.scale.ordinal().rangeRoundBands([my.h(), 0]),
       y = d3.scale.linear().range([0, my.h()]),
       z = d3.scale.ordinal().range(my.colors()),
       keys = _.chain(data[0]).keys().uniq().without('name').value(),
-      xAxis = d3.svg.axis();
+      xAxis = d3.svg.axis(),
+      yAxis = d3.svg.axis();
 
     // Transpose the data into layers by cause.
     var series = d3.layout.stack()(keys.map(function(category) {
@@ -47,16 +49,29 @@ d3.charts.viz = function () {
     // Compute the x-domain (by date) and y-domain (by top).
     x.domain(_.chain(data).pluck(my.category()).uniq().value());
     y.domain([0, d3.max(series[series.length - 1], function(d) { return d.y0 + d.y; })]);
+    yGrid.domain(["20%", "40%", "50%", "60%", "80%", "100%"]);
 
     xAxis.scale(x)
-        .tickPadding(3)
-        .outerTickSize([0])
-        .orient('bottom');
+      .tickPadding(3)
+      .outerTickSize([0])
+      .orient('bottom');
 
     chart.append('g')
       .attr('class', 'x axis')
       .attr('transform', 'translate(0, ' + my.h() +')')
       .call(xAxis);
+
+    yAxis.scale(yGrid)
+      .tickSize(-my.w())
+      .tickPadding(-15)
+      .orient('left')
+      // .tickFormat(format)
+      .outerTickSize([0]);
+
+    chart.append('g')
+      .attr('class', 'y axis')
+      .attr('transform', 'translate(0, ' + -yGrid.rangeBand()/2 + ')')
+      .call(yAxis);
 
     // Add y-axis rules.
     // var rule = chart.selectAll("g.rule")

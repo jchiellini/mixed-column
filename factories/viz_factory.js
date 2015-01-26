@@ -40,6 +40,8 @@
     };
 
     viz.margin({top: 10, right: 10, bottom: 20, left: 10});
+    viz.width(400);
+
     d3.select("#chart").datum(data()).call(viz.draw);
 
 //    var id = setInterval(function() {
