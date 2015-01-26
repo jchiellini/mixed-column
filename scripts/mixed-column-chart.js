@@ -36,19 +36,12 @@ d3.charts.viz = function () {
       z = d3.scale.ordinal().range(my.colors()),
       keys = _.chain(data[0]).keys().uniq().without('name').value();
 
-//    var svg = chart.append("svg:svg")
-//      .attr("width", my.w())
-//      .attr("height", my.h())
-//      .append("svg:g");
-//      .attr("transform", "translate(" + p[3] + "," + (my.h() - p[2]) + ")");
-
     // Transpose the data into layers by cause.
     var series = d3.layout.stack()(keys.map(function(category) {
       return data.map(function(d) {
         return {x: d.name, y: +d[category]};
       });
     }));
-
 
     // Compute the x-domain (by date) and y-domain (by top).
     x.domain(_.chain(data).pluck(my.category()).uniq().value());
@@ -93,15 +86,15 @@ d3.charts.viz = function () {
     //   .style("stroke", function() { return "#b6b8b9"; })
     //   .text(function(d){ return d;});
 
-    // var dataLabel = column.selectAll('.dataLabel')
-    //   .data(Object)
-    //   .enter().append("svg:text")
-    //   .attr("x", function(d) { return x(d.x) + 50 + (my.columnWidth()/2); })
-    //   .attr("y", function(d) { return -y(d.y0) - y(d.y) + (y(d.y)/2) - 4; })
-    //   .attr("text-anchor", "middle")
-    //   .attr("dy", ".71em")
-    //   .style("stroke", function() { return "#fff"; })
-    //   .text(function(d){ return d.y+'%';});
+    var dataLabel = column.selectAll('.dataLabel')
+      .data(Object)
+      .enter().append("svg:text")
+      .attr("x", function(d) { return x(d.x) + (my.columnWidth()/2); })
+      .attr("y", function(d) { return y(d.y0) + y(d.y)/2; })
+      .attr("text-anchor", "middle")
+      .attr("dy", ".71em")
+      .style("stroke", function() { return "#fff"; })
+      .text(function(d){ return d.y+'%';});
 
     // rule.append("svg:text")
     //   .attr("x", 0)
@@ -110,32 +103,32 @@ d3.charts.viz = function () {
     //   .style("stroke", function() { return "#b6b8b9"; })
     //   .text(function(d){ return d+'%' });
 
-    // var getPathPosition = function(series){
+    var getPathPosition = function(series){
 
-    //   var l = series[0],
-    //       r = series[1];
+      var l = series[0],
+          r = series[1];
 
-    //   return [
-    //     { "x": x(l.x)+ (my.columnWidth()*2),   "y": -y(l.y0) - y(l.y) },
-    //     { "x": x(l.x)+ (my.columnWidth()*2),  "y": -y(l.y0) },
-    //     { "x": x(r.x)+ my.columnWidth(),  "y": -y(r.y0) },
-    //     { "x": x(r.x)+ my.columnWidth(),  "y": -y(r.y0) - y(r.y)},
-    //     { "x": x(l.x)+ (my.columnWidth()*2),   "y": -y(l.y0) - y(l.y) }
-    //   ];
-    // };
+      return [
+        { "x": x(l.x)+ (my.columnWidth()),   "y": -y(l.y0) - y(l.y) },
+        { "x": x(l.x)+ (my.columnWidth()),  "y": -y(l.y0) },
+        { "x": x(r.x)+ my.columnWidth(),  "y": -y(r.y0) },
+        { "x": x(r.x)+ my.columnWidth(),  "y": -y(r.y0) - y(r.y)},
+        { "x": x(l.x)+ (my.columnWidth()),   "y": -y(l.y0) - y(l.y) }
+      ];
+    };
 
-    // var lineFunction = d3.svg.line()
-    //       .x(function(d) { return d.x; })
-    //       .y(function(d) { return d.y; })
-    //       .interpolate("linear");
+    var lineFunction = d3.svg.line()
+          .x(function(d) { return d.x; })
+          .y(function(d) { return d.y; })
+          .interpolate("linear");
 
-    // //Add paths
-    // var paths = chart.selectAll('.deltaPaths')
-    //   .data(series)
-    //   .enter().append("path")
-    //   .style("fill", function(d, i) { return z(i); })
-    //   .style("fill-opacity", 0.5)
-    //   .attr("d", function(d){ return lineFunction(getPathPosition(d)); });
+    //Add paths
+    var paths = chart.selectAll('.deltaPaths')
+      .data(series)
+      .enter().append("path")
+      .style("fill", function(d, i) { return z(i); })
+      .style("fill-opacity", 0.5)
+      .attr("d", function(d){ return lineFunction(getPathPosition(d)); });
 
     // var calculateDelta = function(series){
     //   console.log(series)
