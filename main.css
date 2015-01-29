@@ -1,18 +1,39 @@
 svg {
-  font: 10px sans-serif;
-  border-style: solid;
-  border-width: 1px;
-  border-color: #ccc;
+    font-family: prox_nova_light;
 }
+
+.chart_title{
+    font-family: prox_nova_semibold;
+    color:#555558;
+    font-size: 16px;
+}
+
 .axis path,
 .axis line {
     fill: none;
-    stroke: black;
+    stroke: #e8e8e8;
     shape-rendering: crispEdges;
 }
 
-.axis text {
-    font-family: sans-serif;
+.y.axis text {
+//  font-family: sans-serif;
+    font-family: prox_nova_light;
     font-size: 11px;
+    fill:#9c9fa1;
+//  transform: translate(12px,12px);
+}
+
+.x text{
+    fill:#555558;
+    font-size: 14px;
+    font-family: prox_nova_semibold;
+}
+
+.column text{
+    font-family: prox_nova_light;
+}
+
+.y .domain{
+    display: none;
 }
 
