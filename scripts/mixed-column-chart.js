@@ -143,9 +143,11 @@ d3.charts.viz = function () {
 
     stack.enter().append("svg:rect")
         .attr("x", function(d) { return x(d.x) ; })
-        .attr("width", x.rangeBand());
+        .attr("width", x.rangeBand())
+        .attr("y", function(d) { return y(d.y0); })
+        .attr("height", function(d) { return y(d.y); });
 
-    stack
+    stack.transition().delay(500)
       .attr("y", function(d) { return y(d.y0); })
       .attr("height", function(d) { return y(d.y); });
 
@@ -175,9 +177,10 @@ d3.charts.viz = function () {
     paths.enter().append("path")
         .attr('class', 'deltaPaths')
         .style("fill", function(d, i) { return z(i); })
-        .style("fill-opacity", 0.5);
+        .style("fill-opacity", 0.5)
+        .attr("d", function(d){ return lineFunction(getPathPosition(d)); });
 
-    paths.attr("d", function(d){ return lineFunction(getPathPosition(d)); });
+    paths.transition().delay(500).attr("d", function(d){ return lineFunction(getPathPosition(d)); });
 
     paths.exit().remove();
 
