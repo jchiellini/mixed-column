@@ -8,7 +8,7 @@ d3.charts.viz = function () {
   // Define getter/setter style accessors..
   // defaults assigned
   my.accessor('columnWidth', 50);
-  my.accessor('category', 'name');
+  my.accessor('categories', ['Series 1','Series 2']);
   my.accessor('colors', ['#5ca998','#93a55d','#eabe4d','#cc5352','#56375c']);
 
   // Data for Global Scope
@@ -28,6 +28,27 @@ d3.charts.viz = function () {
     });
   };
 
+  var difference = function(array1,array2){
+    var pack = [];
+    for(var i=0;i<array1.length;i++){
+      pack[i] = Math.round(array2[i]) - Math.round(array1[i]);
+    }
+    return pack;
+  };
+
+  var processDeltas = function(data){
+    var dp = {};
+    _.each(data,function(d,i){
+      dp[i] = _.chain(d).omit('name').values().value();
+    });
+
+    var deltas = [];
+    _.each(dp,function(series,i){
+      deltas.push(series);
+    });
+    return difference(dp[0],dp[1]);
+  };
+
   // main method for drawing the viz
   my.chart = function(chartData) {
 
@@ -42,7 +63,19 @@ d3.charts.viz = function () {
       keys = _.chain(data[0]).keys().uniq().without('name').value(),
       xAxis = d3.svg.axis(),
       xAxis2 = d3.svg.axis(),
-      yAxis = d3.svg.axis();
+      yAxis = d3.svg.axis(),
+      deltas = processDeltas(chartData.data);
+
+    var addNames = function(data){
+      _.each(data,function(d,i){
+        var categories = my.categories();
+        data[i].name = categories[i];
+      });
+    };
+
+    addNames(data);
+
+    if(_.isUndefined(chartData.totals)){ chartData.totals = []; }
 
     // Transpose the data into layers by cause.
     var series = d3.layout.stack()(keys.map(function(category) {
@@ -51,7 +84,8 @@ d3.charts.viz = function () {
       });
     }));
 
-    x.domain(_.chain(data).pluck(my.category()).uniq().value());
+
+    x.domain(my.categories());
     x2.domain(chartData.totals);
     y.domain([0, d3.max(series[series.length - 1], function(d) { return d.y0 + d.y; })]);
     yGrid.domain(["20%", "40%", "50%", "60%", "80%", "100%"]);
@@ -68,7 +102,7 @@ d3.charts.viz = function () {
       .call(xAxis);
 
     xAxis2.scale(x2)
-      .tickPadding(25)
+      .tickPadding(27)
       .outerTickSize([0])
       .tickSize(0)
       .orient('bottom');
@@ -133,13 +167,14 @@ d3.charts.viz = function () {
       .interpolate("linear");
 
     //Add delta paths
-//    var paths =
-    chart.selectAll('.deltaPaths')
-      .data(series)
-      .enter().append("path")
-      .style("fill", function(d, i) { return z(i); })
-      .style("fill-opacity", 0.5)
-      .attr("d", function(d){ return lineFunction(getPathPosition(d)); });
+    var paths =
+      chart.selectAll('.deltaPaths')
+        .data(series)
+        .enter().append("path")
+        .style("fill", function(d, i) { return z(i); })
+        .style("fill-opacity", 0.5);
+
+    paths.attr("d", function(d){ return lineFunction(getPathPosition(d)); });
 
     var getDeltaPosition = function(series){
       var l = series[0],
@@ -147,37 +182,39 @@ d3.charts.viz = function () {
       return (r.y0+ (r.y/2) + l.y0 + (l.y/2))/2;
     };
 
-//    var dataLabel =
-    columnText.selectAll('.dataLabel')
-      .data(Object)
-      .enter().append("svg:text")
-      .attr('class','dataLabel')
-      .attr("x", function(d) { return x(d.x) + (x.rangeBand()/2); })
-      .attr("y", function(d) { return (y(d.y0) + y(d.y)/2)-4; })
-      .attr("text-anchor", "middle")
-      .attr("dy", ".71em")
-      .style("fill", function() { return "#fff"; })
-      .text(function(d){ return d.y+'%';});
+    var dataLabel =
+      columnText.selectAll('.dataLabel')
+        .data(Object)
+        .enter().append("svg:text")
+        .attr('class','dataLabel')
+        .attr("x", function(d) { return x(d.x) + (x.rangeBand()/2); })
+        .attr("y", function(d) { return (y(d.y0) + y(d.y)/2)-4; })
+        .attr("text-anchor", "middle")
+        .attr("dy", ".71em")
+        .style("fill", function() { return "#fff"; });
+
+    dataLabel.text(function(d){ return Math.round(d.y)+'%';});
 
     //Add delta labels
-//    var deltaLabels =
-    chart.selectAll('.deltaLabels')
-      .data(series)
-      .enter().append("svg:text")
-      .attr("x", function() { return my.w()/2; })
-      .attr("y", function(d) { return y(getDeltaPosition(d))-4; })
-      .attr("text-anchor", "middle")
-      .attr("dy", ".71em")
-      .style("fill", function() { return "#fff"; })
-      .text(function(d,index){
-        var delta = chartData.delta[index];
+    var deltaLabels =
+      chart.selectAll('.deltaLabels')
+        .data(series)
+        .enter().append("svg:text")
+        .attr("x", function() { return my.w()/2; })
+        .attr("y", function(d) { return y(getDeltaPosition(d))-4; })
+        .attr("text-anchor", "middle")
+        .attr("dy", ".71em")
+        .style("fill", function() { return "#fff"; });
 
-        if(delta > 0){
-          delta = "+"+delta;
-        }
+    deltaLabels.text(function(d,index){
+      var delta = Math.round(deltas[index]);
+      if(delta > 0){
+        delta = "+"+delta;
+      }
+      return delta;
+    });
 
-        return delta;
-      });
+
   };
   return my;
 };
