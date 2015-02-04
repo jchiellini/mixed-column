@@ -75,6 +75,7 @@ d3.charts.viz = function () {
 
     addNames(data);
 
+
     if(_.isUndefined(chartData.totals)){ chartData.totals = []; }
 
     // Transpose the data into layers by cause.
@@ -90,63 +91,65 @@ d3.charts.viz = function () {
     y.domain([0, d3.max(series[series.length - 1], function(d) { return d.y0 + d.y; })]);
     yGrid.domain(["20%", "40%", "50%", "60%", "80%", "100%"]);
 
-    xAxis.scale(x)
-      .tickPadding(10)
-      .outerTickSize([0])
-      .tickSize(0)
-      .orient('bottom');
+    // xAxis.scale(x)
+    //   .tickPadding(10)
+    //   .outerTickSize([0])
+    //   .tickSize(0)
+    //   .orient('bottom');
 
-    chart.append('g')
-      .attr('class', 'x axis')
-      .attr('transform', 'translate(0, ' + my.h() +')')
-      .call(xAxis);
+    // chart.append('g')
+    //   .attr('class', 'x axis')
+    //   .attr('transform', 'translate(0, ' + my.h() +')')
+    //   .call(xAxis);
 
-    xAxis2.scale(x2)
-      .tickPadding(27)
-      .outerTickSize([0])
-      .tickSize(0)
-      .orient('bottom');
+    // xAxis2.scale(x2)
+    //   .tickPadding(27)
+    //   .outerTickSize([0])
+    //   .tickSize(0)
+    //   .orient('bottom');
 
-    chart.append('g')
-      .attr('class', 'x2 axis')
-      .attr('transform', 'translate(0, ' + my.h() +')')
-      .call(xAxis2);
+    // chart.append('g')
+    //   .attr('class', 'x2 axis')
+    //   .attr('transform', 'translate(0, ' + my.h() +')')
+    //   .call(xAxis2);
 
-    yAxis.scale(yGrid)
-      .tickSize(-my.w())
-      .tickPadding(-25)
-      .orient('left')
-      .outerTickSize([0]);
+    // yAxis.scale(yGrid)
+    //   .tickSize(-my.w())
+    //   .tickPadding(-25)
+    //   .orient('left')
+    //   .outerTickSize([0]);
 
-    var yLabels = chart.append('g')
-      .attr('class', 'y axis')
-      .attr('transform', 'translate(0, ' + -yGrid.rangeBand()/2 + ')')
-      .call(yAxis);
+    // var yLabels = chart.append('g')
+    //   .attr('class', 'y axis')
+    //   .attr('transform', 'translate(0, ' + -yGrid.rangeBand()/2 + ')')
+    //   .call(yAxis);
 
-    yLabels.selectAll("text")
-      .attr("dy", 15);
+    // yLabels.selectAll("text")
+    //   .attr("dy", 15);
 
     // Add a group for each series.
-    var column = chart.selectAll("g.column")
-      .data(series)
-      .enter().append("svg:g")
+    var column = chart.selectAll("g.column").data(series);
+
+    column.enter().append("svg:g")
       .attr("class", "column")
       .style("fill", function(d, i) { return z(i); });
 
-    var columnText = chart.selectAll("g.column-text")
-      .data(series)
-      .enter().append("svg:g")
-      .attr("class", "column-text");
+    // var columnText = chart.selectAll("g.column-text")
+    //   .data(series)
+    //   .enter().append("svg:g")
+    //   .attr("class", "column-text");
 
-    // Add a rect for each series.
-//    var rect =
-    column.selectAll("rect")
-      .data(Object)
-      .enter().append("svg:rect")
-      .attr("x", function(d) { return x(d.x) ; })
+    var stack = column.selectAll("rect").data(function(d) { return d; })
+
+    stack.enter().append("svg:rect")
+        .attr("x", function(d) { return x(d.x) ; })
+        .attr("width", x.rangeBand());
+
+    stack
       .attr("y", function(d) { return y(d.y0); })
-      .attr("height", function(d) { return y(d.y); })
-      .attr("width", x.rangeBand());
+      .attr("height", function(d) { return y(d.y); });
+
+    stack.exit().remove();
 
     var getPathPosition = function(series){
       var l = series[0],
@@ -167,14 +170,16 @@ d3.charts.viz = function () {
       .interpolate("linear");
 
     //Add delta paths
-    var paths =
-      chart.selectAll('.deltaPaths')
-        .data(series)
-        .enter().append("path")
+    var paths = chart.selectAll('.deltaPaths').data(series);
+
+    paths.enter().append("path")
+        .attr('class', 'deltaPaths')
         .style("fill", function(d, i) { return z(i); })
         .style("fill-opacity", 0.5);
 
     paths.attr("d", function(d){ return lineFunction(getPathPosition(d)); });
+
+    paths.exit().remove();
 
     var getDeltaPosition = function(series){
       var l = series[0],
@@ -182,37 +187,37 @@ d3.charts.viz = function () {
       return (r.y0+ (r.y/2) + l.y0 + (l.y/2))/2;
     };
 
-    var dataLabel =
-      columnText.selectAll('.dataLabel')
-        .data(Object)
-        .enter().append("svg:text")
-        .attr('class','dataLabel')
-        .attr("x", function(d) { return x(d.x) + (x.rangeBand()/2); })
-        .attr("y", function(d) { return (y(d.y0) + y(d.y)/2)-4; })
-        .attr("text-anchor", "middle")
-        .attr("dy", ".71em")
-        .style("fill", function() { return "#fff"; });
+    // var dataLabel =
+    //   columnText.selectAll('.dataLabel')
+    //     .data(Object)
+    //     .enter().append("svg:text")
+    //     .attr('class','dataLabel')
+    //     .attr("x", function(d) { return x(d.x) + (x.rangeBand()/2); })
+    //     .attr("y", function(d) { return (y(d.y0) + y(d.y)/2)-4; })
+    //     .attr("text-anchor", "middle")
+    //     .attr("dy", ".71em")
+    //     .style("fill", function() { return "#fff"; });
 
-    dataLabel.text(function(d){ return Math.round(d.y)+'%';});
+    // dataLabel.text(function(d){ return Math.round(d.y)+'%';});
 
     //Add delta labels
-    var deltaLabels =
-      chart.selectAll('.deltaLabels')
-        .data(series)
-        .enter().append("svg:text")
-        .attr("x", function() { return my.w()/2; })
-        .attr("y", function(d) { return y(getDeltaPosition(d))-4; })
-        .attr("text-anchor", "middle")
-        .attr("dy", ".71em")
-        .style("fill", function() { return "#fff"; });
+    // var deltaLabels =
+    //   chart.selectAll('.deltaLabels')
+    //     .data(series)
+    //     .enter().append("svg:text")
+    //     .attr("x", function() { return my.w()/2; })
+    //     .attr("y", function(d) { return y(getDeltaPosition(d))-4; })
+    //     .attr("text-anchor", "middle")
+    //     .attr("dy", ".71em")
+    //     .style("fill", function() { return "#fff"; });
 
-    deltaLabels.text(function(d,index){
-      var delta = Math.round(deltas[index]);
-      if(delta > 0){
-        delta = "+"+delta;
-      }
-      return delta;
-    });
+    // deltaLabels.text(function(d,index){
+    //   var delta = Math.round(deltas[index]);
+    //   if(delta > 0){
+    //     delta = "+"+delta;
+    //   }
+    //   return delta;
+    // });
 
 
   };
