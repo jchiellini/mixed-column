@@ -49,6 +49,13 @@ d3.charts.viz = function () {
     return difference(dp[0],dp[1]);
   };
 
+  var addNames = function(data){
+    _.each(data,function(d,i){
+      var categories = my.categories();
+      data[i].name = categories[i];
+    });
+  };
+
   // main method for drawing the viz
   my.chart = function(chartData) {
 
@@ -65,13 +72,6 @@ d3.charts.viz = function () {
       xAxis2 = d3.svg.axis(),
       yAxis = d3.svg.axis(),
       deltas = processDeltas(chartData.data);
-
-    var addNames = function(data){
-      _.each(data,function(d,i){
-        var categories = my.categories();
-        data[i].name = categories[i];
-      });
-    };
 
     addNames(data);
 
